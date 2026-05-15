@@ -3,7 +3,7 @@
 ## 2. Týden – Základní setup
 
 ### Cíl týdne
-Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, propojit frontend s backendem a vytvořit funkční systém registrace a přihlašování uživatelů. Součástí práce bylo také zprovoznění databáze a vytvoření základního layoutu aplikace.
+Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, propojit frontend s backendem a vytvořit funkční systém registrace a přihlašování uživatelů. Součástí práce bylo také zprovoznění ukládání dat pomocí JSON databáze a vytvoření základního layoutu aplikace.
 
 ---
 
@@ -12,28 +12,24 @@ Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, p
 ### Backend
 - Vytvoření základní struktury backendu.
 - Nastavení serveru a routování API.
-- Připojení aplikace k databázi.
-- Vytvoření tabulek:
-  - users
-  - favorites
-  - history
-  - logs
+- Připojení aplikace k JSON databázi.
+- Vytvoření struktury pro ukládání uživatelů.
 - Implementace registrace uživatelů.
 - Implementace přihlášení uživatelů.
 - Zabezpečení hesel pomocí hashování.
-- Testování komunikace mezi backendem a databází.
+- Testování komunikace mezi backendem a JSON databází.
 
 ### Frontend
 - Vytvoření základního layoutu aplikace.
 - Příprava navigace mezi stránkami.
-- Návrh úvodní stránky.
+- Vytvoření user page.
 - Vytvoření formuláře pro registraci.
 - Vytvoření formuláře pro přihlášení.
 - Napojení formulářů na backend API.
 - Základní responzivní úpravy.
 
 ### Databáze
-- Zprovoznění databáze.
+- Zprovoznění JSON databáze.
 - Nastavení připojení mezi backendem a databází.
 - Ověření ukládání a načítání uživatelských dat.
 - Kontrola správného ukládání hashovaných hesel.
@@ -53,7 +49,7 @@ Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, p
 - JavaScript
 
 ### Databáze
-- MySQL
+- JSON
 
 ---
 
@@ -66,12 +62,13 @@ Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, p
 
 ### Backend Developer – Jančík, Kůra
 - Nastavení serveru.
-- Databázové připojení.
+- Připojení JSON databáze.
 - Registrace a přihlášení.
 - API komunikace.
 
 ### Frontend Developer – Poštulka, Zapletal
 - Layout aplikace.
+- User page.
 - Formuláře pro login a registraci.
 - Napojení frontend části na backend.
 
@@ -84,7 +81,7 @@ Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, p
 
 ## Výstup týdne
 
-Na konci druhého týdne byla připravena základní funkční verze aplikace. Backend byl propojen s databází, fungovala registrace i přihlášení uživatelů a frontend obsahoval základní layout s navigací. Projekt byl připraven pro další vývoj funkcí a napojení externího API.
+Na konci druhého týdne byla připravena základní funkční verze aplikace. Backend byl propojen s JSON databází, fungovala registrace i přihlášení uživatelů a frontend obsahoval základní layout aplikace společně s user page. Projekt byl připraven pro další vývoj funkcí a napojení externího API.
 
 ---
 
