@@ -3,11 +3,11 @@
 ## 3. Týden – Core Logic
 
 ### Cíl týdne
-Hlavním cílem třetího týdne bylo napojení externího API pro získávání sportovních dat a implementace základní logiky aplikace. Součástí práce bylo také ukládání získaných dat do databáze a jejich následné načítání v aplikaci.
+Hlavním cílem třetího týdne je napojení externího API pro získávání sportovních dat a implementace základní logiky aplikace. Součástí práce bude také ukládání získaných dat do databáze a jejich následné načítání v aplikaci.
 
 ---
 
-## Provedené úkoly
+## úkoly
 
 ### Backend
 - Napojení externího Ergast API.
