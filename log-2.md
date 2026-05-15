@@ -40,8 +40,7 @@ Hlavním cílem druhého týdne bylo připravit základní strukturu projektu, p
 
 ### Backend
 - Node.js
-- Express.js
-- REST API
+- API
 
 ### Frontend
 - HTML
