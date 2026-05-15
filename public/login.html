@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>Sign in.</h1>
+    <p class="sub">No account? <a href="/register.html">Register →</a></p>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="pass">Password</label>
+      <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button id="btn">Sign In</button>
+  </div>
+
+  <script>
+    // Already logged in? Go to dashboard
+    fetch('/api/me').then(r => { if (r.ok) location.href = '/dashboard.html'; });
+
+    document.getElementById('btn').onclick = async () => {
+      const btn = document.getElementById('btn');
+      const msg = document.getElementById('msg');
+      msg.className = 'msg';
+      btn.disabled = true;
+
+      const res  = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:    document.getElementById('email').value,
+          password: document.getElementById('pass').value
+        })
+      });
+      const data = await res.json();
+      btn.disabled = false;
+
+      if (res.ok) {
+        location.href = '/dashboard.html';
+      } else {
+        msg.textContent = data.error;
+        msg.className = 'msg error';
+      }
+    };
+  </script>
+</body>
+</html>

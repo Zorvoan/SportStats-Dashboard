@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body style="display:block;padding:0">
+  <div class="dash">
+    <header>
+      <span>authsite</span>
+      <button id="logout">Log out</button>
+    </header>
+
+    <div class="greeting">
+      <small>Welcome back</small>
+      <h1 id="name">—</h1>
+    </div>
+
+    <div class="grid">
+      <div class="stat"><small>Username</small> <span id="username">—</span></div>
+      <div class="stat"><small>Email</small>    <span id="email">—</span></div>
+      <div class="stat"><small>Member since</small> <span id="since">—</span></div>
+      <div class="stat"><small>Session</small>  <span style="color:var(--green)">● active</span></div>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const res = await fetch('/api/me');
+      if (!res.ok) return location.href = '/login.html';
+      const u = await res.json();
+      document.getElementById('name').textContent     = '@' + u.username;
+      document.getElementById('username').textContent = u.username;
+      document.getElementById('email').textContent    = u.email;
+      document.getElementById('since').textContent    = new Date(u.createdAt).toLocaleDateString();
+    })();
+
+    document.getElementById('logout').onclick = async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      location.href = '/login.html';
+    };
+  </script>
+</body>
+</html>
