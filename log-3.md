@@ -39,7 +39,6 @@ Hlavním cílem třetího týdne bylo napojení externího API pro získávání
 - Node.js
 - Express.js
 - REST API
-- Axios
 
 ### Frontend
 - HTML
