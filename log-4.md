@@ -17,6 +17,8 @@ Hlavním cílem čtvrtého týdne bylo rozšířit aplikaci o uživatelské funk
 - Přidání filtrování výsledků podle parametrů.
 - Testování nových API endpointů.
 - Optimalizace práce s databází.
+- MYSQL Databaze
+- REACT
 
 ## Frontend
 
@@ -30,10 +32,7 @@ Hlavním cílem čtvrtého týdne bylo rozšířit aplikaci o uživatelské funk
 
 ## Databáze
 
-- Rozšíření databázové struktury pro oblíbené položky.
-- Ukládání historie vyhledávání.
-- Testování správného načítání uložených dat.
-- Kontrola integrity databáze.
+- MySQL
 
 ---
 
@@ -41,15 +40,16 @@ Hlavním cílem čtvrtého týdne bylo rozšířit aplikaci o uživatelské funk
 
 ## Backend
 
-- Node.js
-- Express.js
-- REST API
+- Noje.js, Express.js
+- MySQL2
+- jsonwebtoken
+- cors
 
 ## Frontend
 
-- HTML
-- CSS
-- JavaScript
+- React 19
+- Vite
+- Tailwind CSS
 
 ## Databáze
 
@@ -57,7 +57,8 @@ Hlavním cílem čtvrtého týdne bylo rozšířit aplikaci o uživatelské funk
 
 ## Externí API
 
-- Ergast API
+- OpenLigaDB API
+- Jolpica/Ergast F1 API
 
 ---
 
