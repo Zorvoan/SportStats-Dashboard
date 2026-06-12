@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyhledávání - SportPulse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .search-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .search-tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 767px) {
+            .search-results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigační panel -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <i class="fas fa-bolt"></i>
+                SportPulse
+            </a>
+
+            <div class="navbar-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="navbarSearch" placeholder="Vyhledat zápas, tým nebo ligu...">
+            </div>
+
+            <div class="navbar-user">
+                <span class="navbar-user-name" id="userName">Uživatel</span>
+                <div class="navbar-user-avatar" id="userAvatar">U</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hlavní obsah -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="dashboard.html"><i class="fas fa-home"></i> Domů</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Vyhledávání</span>
+            </div>
+
+            <!-- Hlavička vyhledávání -->
+            <div class="search-header">
+                <h1>Výsledky vyhledávání pro: <span id="searchQuery"></span></h1>
+            </div>
+
+            <!-- Taby -->
+            <div class="search-tabs">
+                <button class="search-tab-btn active" data-tab="events">
+                    <i class="fas fa-calendar-alt"></i> Zápasy
+                </button>
+                <button class="search-tab-btn" data-tab="teams">
+                    <i class="fas fa-shield-alt"></i> Týmy
+                </button>
+                <button class="search-tab-btn" data-tab="leagues">
+                    <i class="fas fa-trophy"></i> Ligy
+                </button>
+            </div>
+
+            <!-- Výsledky -->
+            <div id="searchResults">
+                <div class="loading"><div class="loading-spinner"></div> Vyhledávání...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p> SportPulse. Sportovní data poskytuje <a href="https://www.thesportsdb.com" target="_blank" style="color: var(--accent);">TheSportsDB</a>.</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Kontrola přihlášení
+        if (!checkAuth()) {
+            window.location.href = 'index.html';
+        }
+
+        // Aktualizace uživatele v navbaru
+        updateNavbarUser();
+
+        // Inicializace navbar funkcí
+        initNavbarSearch();
+        initNavbarUser();
+
+        // Získání query parametru
+        const query = getUrlParam('q') || '';
+        document.getElementById('searchQuery').textContent = query;
+
+        let currentTab = 'events';
+        let searchData = { events: [], teams: [], leagues: [] };
+
+        // Inicializace taby
+        document.querySelectorAll('.search-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.search-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                renderResults();
+            });
+        });
+
+        // Vyhledávání
+        async function performSearch() {
+            const container = document.getElementById('searchResults');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Vyhledávání...</div>';
+
+            if (!query || query.length < 2) {
+                container.innerHTML = '';
+                container.appendChild(createEmptyState('Zadejte alespoň 2 znaky pro vyhledávání'));
+                return;
+            }
+
+            try {
+                // Paralelní vyhledávání
+                const [eventsData, teamsData, leaguesData] = await Promise.all([
+                    searchEvents(query).catch(() => ({ event: [] })),
+                    searchTeams(query).catch(() => ({ teams: [] })),
+                    getAllLeagues().catch(() => ({ leagues: [] }))
+                ]);
+
+                searchData.events = eventsData.event || [];
+                searchData.teams = teamsData.teams || [];
+
+                // Filtrování lig podle query
+                const allLeagues = leaguesData.leagues || [];
+                searchData.leagues = allLeagues.filter(l =>
+                    l.strLeague?.toLowerCase().includes(query.toLowerCase()) ||
+                    l.strCountry?.toLowerCase().includes(query.toLowerCase()) ||
+                    l.strSport?.toLowerCase().includes(query.toLowerCase())
+                );
+
+                renderResults();
+            } catch (error) {
+                console.error('Chyba při vyhledávání:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Chyba při vyhledávání'));
+            }
+        }
+
+        // Render výsledků
+        function renderResults() {
+            const container = document.getElementById('searchResults');
+            container.innerHTML = '';
+
+            const data = searchData[currentTab];
+
+            if (!data || data.length === 0) {
+                const messages = {
+                    events: 'Žádné zápasy nenalezeny',
+                    teams: 'Žádné týmy nenalezeny',
+                    leagues: 'Žádné ligy nalezeny'
+                };
+                container.appendChild(createEmptyState(messages[currentTab]));
+                return;
+            }
+
+            if (currentTab === 'events') {
+                const grid = document.createElement('div');
+                grid.className = 'matches-grid';
+                grid.innerHTML = data.slice(0, 12).map(renderMatchCard).join('');
+                container.appendChild(grid);
+            } else if (currentTab === 'teams') {
+                const grid = document.createElement('div');
+                grid.className = 'search-results-grid';
+                grid.innerHTML = data.slice(0, 12).map(renderTeamCard).join('');
+                container.appendChild(grid);
+            } else if (currentTab === 'leagues') {
+                const grid = document.createElement('div');
+                grid.className = 'leagues-grid';
+                grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+                grid.innerHTML = data.slice(0, 12).map(renderLeagueCard).join('');
+                container.appendChild(grid);
+            }
+        }
+
+        // Spustit vyhledávání
+        performSearch();
+    </script>
+</body>
+</html>

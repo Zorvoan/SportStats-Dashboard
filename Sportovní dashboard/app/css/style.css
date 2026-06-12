@@ -1,0 +1,1302 @@
+/* ========================================
+   SportPulse - Hlavní stylesheet
+   ======================================== */
+
+/* ---- Reset a základní nastavení ---- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-page: #0F0F0F;
+    --bg-card: #1A1A1A;
+    --bg-input: #2A2A2A;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+    --text-tertiary: #6B6B6B;
+    --accent: #4ADE80;
+    --accent-hover: #22C55E;
+    --accent-transparent: rgba(74, 222, 128, 0.1);
+    --win: #4ADE80;
+    --loss: #EF4444;
+    --draw: #F59E0B;
+    --border: #2A2A2A;
+    --error: #EF4444;
+    --radius-card: 12px;
+    --radius-button: 8px;
+    --radius-input: 8px;
+    --max-width: 1280px;
+    --nav-height: 64px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ---- Layout ---- */
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.page-content {
+    padding-top: calc(var(--nav-height) + 24px);
+    padding-bottom: 48px;
+    min-height: 100vh;
+}
+
+/* ---- Navigační panel ---- */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.navbar-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navbar-search {
+    position: relative;
+    width: 400px;
+    max-width: 100%;
+}
+
+.navbar-search input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.navbar-search input:focus {
+    border-color: var(--accent);
+}
+
+.navbar-search input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.navbar-search .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.navbar-user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.navbar-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-page);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.navbar-user-avatar:hover {
+    opacity: 0.8;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-button);
+    padding: 8px 0;
+    min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    display: none;
+}
+
+.user-dropdown.active {
+    display: block;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.user-dropdown a:hover {
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+/* ---- Tlačítka ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius-button);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--bg-page);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.btn-secondary:hover {
+    background: var(--accent-transparent);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+/* ---- Inputy ---- */
+.input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.input:focus {
+    border-color: var(--accent);
+}
+
+.input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* ---- Karty ---- */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    transition: border-color 0.2s ease;
+}
+
+.card-hover:hover {
+    border-color: var(--accent);
+}
+
+/* ---- Landing / Login stránka ---- */
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.landing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    min-height: 100vh;
+    padding: 48px 0;
+}
+
+.landing-brand {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.landing-title {
+    font-size: 48px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.landing-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    line-height: 1.5;
+}
+
+.landing-features {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.landing-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.landing-feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-button);
+    background: var(--accent-transparent);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.landing-feature-text h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.landing-feature-text p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Login karta */
+.login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 32px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.login-footer a {
+    color: var(--accent);
+    transition: opacity 0.2s ease;
+}
+
+.login-footer a:hover {
+    opacity: 0.8;
+}
+
+.login-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 24px;
+    transition: color 0.2s ease;
+}
+
+.login-back:hover {
+    color: var(--text-primary);
+}
+
+/* ---- Error message ---- */
+.error-message {
+    color: var(--error);
+    font-size: 14px;
+    margin-top: 8px;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+/* ---- Filtry ---- */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-button);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    color: var(--bg-page);
+    border-color: var(--accent);
+}
+
+/* ---- Sportovní karta (match card) ---- */
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.match-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.match-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.match-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.match-card-date {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.match-card-league {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.match-card-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.match-team {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.match-team.away {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.match-team-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.match-team-name {
+    font-size: 14px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.match-score {
+    font-family: 'Geist Mono', 'GeistMono', monospace;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--text-primary);
+    text-align: center;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.match-score-divider {
+    color: var(--text-tertiary);
+    margin: 0 4px;
+}
+
+.match-card-status {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-finished {
+    color: var(--text-tertiary);
+}
+
+.status-live {
+    color: var(--accent);
+    animation: pulse 2s infinite;
+}
+
+.status-upcoming {
+    color: var(--text-secondary);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ---- Liga karta ---- */
+.leagues-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+}
+
+.league-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.league-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.league-card-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+}
+
+.league-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.league-card-country {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ---- Tým karta ---- */
+.team-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.team-card:hover {
+    border-color: var(--accent);
+}
+
+.team-card-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.team-card-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.team-card-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ---- Detail zápasu ---- */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.breadcrumb a {
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--accent);
+}
+
+.breadcrumb-separator {
+    color: var(--text-tertiary);
+}
+
+.match-detail-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.match-detail-meta {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.match-detail-date {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.match-detail-league {
+    font-size: 14px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.match-detail-teams {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.match-detail-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    min-width: 150px;
+}
+
+.match-detail-team-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.match-detail-team-name {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.match-detail-score {
+    font-family: 'Geist Mono', monospace;
+    font-weight: 700;
+    font-size: 48px;
+    text-align: center;
+}
+
+.match-detail-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 16px;
+}
+
+.status-badge-finished {
+    background: var(--bg-input);
+    color: var(--text-secondary);
+}
+
+.status-badge-live {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--accent);
+}
+
+.status-badge-upcoming {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--draw);
+}
+
+/* Statistiky */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-value {
+    font-family: 'Geist Mono', monospace;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.stat-value.home {
+    text-align: right;
+}
+
+.stat-value.away {
+    text-align: left;
+}
+
+.stat-label {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.stat-bar {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    opacity: 0.3;
+}
+
+.stat-bar.home {
+    right: 50%;
+    background: var(--accent);
+}
+
+.stat-bar.away {
+    left: 50%;
+    background: var(--accent);
+}
+
+/* ---- Liga stránka ---- */
+.league-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+}
+
+.league-header-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.league-header-info h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.league-header-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Taby */
+.tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: -1px;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Tabulka ligy */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.standings-table th,
+.standings-table td {
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.standings-table th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+}
+
+.standings-table td {
+    border-bottom: 1px solid var(--border);
+}
+
+.standings-table tr:hover td {
+    background: rgba(74, 222, 128, 0.05);
+}
+
+.standings-table .team-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.standings-table .team-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.standings-table .team-name {
+    font-weight: 500;
+}
+
+.standings-table .pos-top {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* ---- Tým stránka ---- */
+.team-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+}
+
+.team-header-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.team-header-info h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.team-header-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Hráči grid */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.player-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s ease;
+}
+
+.player-card:hover {
+    border-color: var(--accent);
+}
+
+.player-card-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 12px;
+    background: var(--bg-input);
+}
+
+.player-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.player-card-position {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ---- Vyhledávání ---- */
+.search-header {
+    margin-bottom: 24px;
+}
+
+.search-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.search-header h1 span {
+    color: var(--accent);
+}
+
+/* ---- Loading stav ---- */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 12px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: var(--text-tertiary);
+}
+
+.empty-state p {
+    font-size: 16px;
+}
+
+/* ---- Sekce nadpis ---- */
+.section-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    margin-top: 32px;
+}
+
+/* ---- Footer ---- */
+.footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+/* ---- Hamburger menu (mobil) ---- */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+/* ========================================
+   RESPONZIVNÍ DESIGN
+   ======================================== */
+
+@media (max-width: 1023px) {
+    .landing-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .landing-page {
+        padding-top: 24px;
+    }
+
+    .matches-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .leagues-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .players-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .navbar-search {
+        width: 280px;
+    }
+
+    .match-detail-teams {
+        gap: 24px;
+    }
+
+    .match-detail-team-name {
+        font-size: 16px;
+    }
+
+    .match-detail-score {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 767px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .landing-title {
+        font-size: 32px;
+    }
+
+    .landing-subtitle {
+        font-size: 16px;
+    }
+
+    .matches-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .leagues-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .players-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .navbar-search {
+        display: none;
+    }
+
+    .navbar-user-name {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .filter-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
+    }
+
+    .filter-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .match-detail-teams {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .match-detail-score {
+        order: -1;
+    }
+
+    .match-detail-team {
+        flex-direction: row;
+        min-width: auto;
+        gap: 16px;
+    }
+
+    .match-detail-team-logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .match-detail-team-name {
+        font-size: 16px;
+    }
+
+    .standings-table {
+        font-size: 12px;
+    }
+
+    .standings-table th,
+    .standings-table td {
+        padding: 8px 6px;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 40px 1fr;
+        gap: 8px;
+    }
+
+    .league-header,
+    .team-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+        white-space: nowrap;
+    }
+
+    .login-card {
+        padding: 24px;
+    }
+
+    .page-content {
+        padding-top: calc(var(--nav-height) + 16px);
+    }
+}
+
+/* Mobilní vyhledávání */
+.mobile-search {
+    display: none;
+    padding: 12px 0;
+}
+
+@media (max-width: 767px) {
+    .mobile-search {
+        display: block;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* Selection */
+::selection {
+    background: rgba(74, 222, 128, 0.3);
+    color: var(--text-primary);
+}

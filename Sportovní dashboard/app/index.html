@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportPulse - Vaše sportovní centrum</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="landing-page">
+        <div class="container">
+            <div class="landing-grid">
+                <!-- Levá sekce - Informace -->
+                <div class="landing-left">
+                    <div class="landing-brand">
+                        <i class="fas fa-bolt"></i>
+                        SportPulse
+                    </div>
+                    <h1 class="landing-title">Vaše sportovní centrum</h1>
+                    <p class="landing-subtitle">Sledujte výsledky, statistiky a události z celého světa. Všechny sporty na jednom místě.</p>
+
+                    <div class="landing-features">
+                        <div class="landing-feature">
+                            <div class="landing-feature-icon">
+                                <i class="fas fa-futbol"></i>
+                            </div>
+                            <div class="landing-feature-text">
+                                <h3>Více než 50 sportů</h3>
+                                <p>Od fotbalu po e-sporty, pokrýváme všechny populární sporty.</p>
+                            </div>
+                        </div>
+                        <div class="landing-feature">
+                            <div class="landing-feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="landing-feature-text">
+                                <h3>Detailní statistiky</h3>
+                                <p>Tabulky, sestavy, historie zápasů a individuální statistiky.</p>
+                            </div>
+                        </div>
+                        <div class="landing-feature">
+                            <div class="landing-feature-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="landing-feature-text">
+                                <h3>Historická data</h3>
+                                <p>Prohlížejte si minulé výsledky a analýzy vašich oblíbených týmů.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pravá sekce - Login formulář -->
+                <div class="landing-right">
+                    <div class="login-card">
+                        <h2 class="login-title">Přihlášení</h2>
+                        <form id="loginForm">
+                            <div class="input-group">
+                                <label for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" class="input" placeholder="vas@email.cz" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="loginPassword">Heslo</label>
+                                <input type="password" id="loginPassword" class="input" placeholder="Vaše heslo" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Přihlásit se
+                            </button>
+                        </form>
+                        <div id="loginError" class="error-message"></div>
+
+                        <div class="login-divider">nebo</div>
+
+                        <a href="register.html" class="btn btn-secondary btn-full">
+                            <i class="fas fa-user-plus"></i>
+                            Vytvořit účet
+                        </a>
+
+                        <div class="login-footer">
+                            <a href="#" onclick="demoLogin(); return false;">Přihlásit se jako demo uživatel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Kontrola, zda je uživatel již přihlášen
+        if (getCurrentUser()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Inicializace přihlašovacího formuláře
+        initLoginForm();
+
+        // Demo přihlášení
+        function demoLogin() {
+            // Vytvořit demo uživatele pokud neexistuje
+            const users = getUsers();
+            if (!users.some(u => u.email === 'demo@sportpulse.cz')) {
+                register('Demo', 'demo@sportpulse.cz', 'demo123');
+            } else {
+                login('demo@sportpulse.cz', 'demo123');
+            }
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SportPulse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigační panel -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <i class="fas fa-bolt"></i>
+                SportPulse
+            </a>
+
+            <div class="navbar-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="navbarSearch" placeholder="Vyhledat zápas, tým nebo ligu...">
+            </div>
+
+            <div class="navbar-user">
+                <span class="navbar-user-name" id="userName">Uživatel</span>
+                <div class="navbar-user-avatar" id="userAvatar">U</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                    </a>
+                </div>
+            </div>
+
+            <div class="hamburger" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-search container" style="padding-top: 80px;">
+        <div class="navbar-search" style="width: 100%; display: block;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="mobileSearch" placeholder="Vyhledat zápas, tým nebo ligu...">
+        </div>
+    </div>
+
+    <!-- Hlavní obsah -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Vyhledávací sekce -->
+            <div class="search-section" style="margin-bottom: 32px;">
+                <h1 style="font-size: 32px; font-weight: 600; margin-bottom: 16px;">Dashboard</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Prohlížejte si výsledky a události z celého světa.</p>
+            </div>
+
+            <!-- Filtry sportů -->
+            <div class="filter-bar" id="sportFilters">
+                <!-- Naplní se dynamicky -->
+            </div>
+
+            <!-- Sekce: Dnešní zápasy -->
+            <h2 class="section-title">
+                <i class="fas fa-calendar-day"></i>
+                Dnešní zápasy
+            </h2>
+            <div id="todayMatches" class="matches-grid">
+                <div class="loading"><div class="loading-spinner"></div> Načítání zápasů...</div>
+            </div>
+
+            <!-- Sekce: Včerejší výsledky -->
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                Včerejší výsledky
+            </h2>
+            <div id="yesterdayMatches" class="matches-grid">
+                <div class="loading"><div class="loading-spinner"></div> Načítání výsledků...</div>
+            </div>
+
+            <!-- Sekce: Populární ligy -->
+            <h2 class="section-title">
+                <i class="fas fa-trophy"></i>
+                Populární ligy
+            </h2>
+            <div id="popularLeagues" class="leagues-grid">
+                <div class="loading"><div class="loading-spinner"></div> Načítání lig...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p> SportPulse. Sportovní data poskytuje <a href="https://www.thesportsdb.com" target="_blank" style="color: var(--accent);">TheSportsDB</a>.</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Kontrola přihlášení
+        if (!checkAuth()) {
+            window.location.href = 'index.html';
+        }
+
+        // Aktualizace uživatele v navbaru
+        updateNavbarUser();
+
+        // Inicializace navbar funkcí
+        initNavbarSearch();
+        initNavbarUser();
+
+        // Inicializace mobilního vyhledávání
+        const mobileSearch = document.getElementById('mobileSearch');
+        if (mobileSearch) {
+            mobileSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query.length >= 2) {
+                        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        }
+
+        // Inicializace filtrů
+        let currentSportFilter = 'all';
+        const sports = getSportsFilters();
+        const filtersContainer = document.getElementById('sportFilters');
+
+        sports.forEach(sport => {
+            const btn = document.createElement('button');
+            btn.className = `filter-btn ${sport.id === 'all' ? 'active' : ''}`;
+            btn.innerHTML = `<i class="fas ${sport.icon}"></i> ${sport.name}`;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSportFilter = sport.id;
+                loadMatches();
+            });
+            filtersContainer.appendChild(btn);
+        });
+
+        // Načtení zápasů
+        async function loadMatches() {
+            const todayEl = document.getElementById('todayMatches');
+            const yesterdayEl = document.getElementById('yesterdayMatches');
+
+            todayEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Načítání zápasů...</div>';
+            yesterdayEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Načítání výsledků...</div>';
+
+            try {
+                const sportParam = currentSportFilter !== 'all' ? currentSportFilter : null;
+
+                // Dnešní zápasy
+                const todayData = await getEventsByDay(getTodayDate(), sportParam);
+                const todayEvents = todayData.events || [];
+
+                if (todayEvents.length === 0) {
+                    todayEl.innerHTML = '';
+                    todayEl.appendChild(createEmptyState('Dnes žádné zápasy'));
+                } else {
+                    todayEl.innerHTML = todayEvents.slice(0, 9).map(renderMatchCard).join('');
+                }
+
+                // Včerejší zápasy
+                const yesterdayData = await getEventsByDay(getYesterdayDate(), sportParam);
+                const yesterdayEvents = yesterdayData.events || [];
+
+                if (yesterdayEvents.length === 0) {
+                    yesterdayEl.innerHTML = '';
+                    yesterdayEl.appendChild(createEmptyState('Včera žádné zápasy'));
+                } else {
+                    yesterdayEl.innerHTML = yesterdayEvents.slice(0, 9).map(renderMatchCard).join('');
+                }
+            } catch (error) {
+                console.error('Chyba při načítání zápasů:', error);
+                todayEl.innerHTML = '';
+                todayEl.appendChild(createErrorState('Nepodařilo se načíst zápasy'));
+                yesterdayEl.innerHTML = '';
+                yesterdayEl.appendChild(createErrorState('Nepodařilo se načíst výsledky'));
+            }
+        }
+
+        // Načtení populárních lig
+        async function loadPopularLeagues() {
+            const container = document.getElementById('popularLeagues');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Načítání lig...</div>';
+
+            try {
+                const popular = getPopularLeagues();
+                const leaguesPromises = popular.map(l => getLeagueDetails(l.id));
+                const leaguesData = await Promise.all(leaguesPromises);
+
+                const leagues = leaguesData.map(data => data.leagues?.[0]).filter(Boolean);
+
+                if (leagues.length === 0) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Žádné ligy k zobrazení'));
+                    return;
+                }
+
+                container.innerHTML = leagues.map(league => renderLeagueCard(league)).join('');
+            } catch (error) {
+                console.error('Chyba při načítání lig:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Nepodařilo se načíst ligy'));
+            }
+        }
+
+        // Toggle mobilní menu
+        function toggleMobileMenu() {
+            const userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+                userDropdown.classList.toggle('active');
+            }
+        }
+
+        // Přepínání filtrů na mobilu
+        function initMobileFilters() {
+            const filterBar = document.getElementById('sportFilters');
+            if (!filterBar) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            filterBar.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - filterBar.offsetLeft;
+                scrollLeft = filterBar.scrollLeft;
+            });
+
+            filterBar.addEventListener('mouseleave', () => isDown = false);
+            filterBar.addEventListener('mouseup', () => isDown = false);
+            filterBar.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - filterBar.offsetLeft;
+                const walk = (x - startX) * 2;
+                filterBar.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        // Inicializace
+        initMobileFilters();
+
+        // Načíst data při startu
+        loadMatches();
+        loadPopularLeagues();
+    </script>
+</body>
+</html>

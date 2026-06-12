@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liga - SportPulse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .season-selector {
+            margin-top: 12px;
+        }
+        .season-selector select {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-input);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+        .season-selector select:focus {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigační panel -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <i class="fas fa-bolt"></i>
+                SportPulse
+            </a>
+
+            <div class="navbar-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="navbarSearch" placeholder="Vyhledat zápas, tým nebo ligu...">
+            </div>
+
+            <div class="navbar-user">
+                <span class="navbar-user-name" id="userName">Uživatel</span>
+                <div class="navbar-user-avatar" id="userAvatar">U</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hlavní obsah -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="dashboard.html"><i class="fas fa-home"></i> Domů</a>
+                <span class="breadcrumb-separator">/</span>
+                <span id="leagueBreadcrumb">Liga</span>
+            </div>
+
+            <!-- Hlavička ligy -->
+            <div id="leagueHeader">
+                <div class="loading"><div class="loading-spinner"></div> Načítání informací o lize...</div>
+            </div>
+
+            <!-- Taby -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="standings">Tabulka</button>
+                <button class="tab-btn" data-tab="matches">Zápasy</button>
+                <button class="tab-btn" data-tab="teams">Týmy</button>
+            </div>
+
+            <!-- Obsah tabů -->
+            <div id="tabStandings" class="tab-content active">
+                <div class="loading"><div class="loading-spinner"></div> Načítání tabulky...</div>
+            </div>
+
+            <div id="tabMatches" class="tab-content">
+                <div class="loading"><div class="loading-spinner"></div> Načítání zápasů...</div>
+            </div>
+
+            <div id="tabTeams" class="tab-content">
+                <div class="loading"><div class="loading-spinner"></div> Načítání týmů...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p> SportPulse. Sportovní data poskytuje <a href="https://www.thesportsdb.com" target="_blank" style="color: var(--accent);">TheSportsDB</a>.</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Kontrola přihlášení
+        if (!checkAuth()) {
+            window.location.href = 'index.html';
+        }
+
+        // Aktualizace uživatele v navbaru
+        updateNavbarUser();
+
+        // Inicializace navbar funkcí
+        initNavbarSearch();
+        initNavbarUser();
+
+        // Získání ID ligy z URL
+        const leagueId = getUrlParam('id');
+        let currentSeason = '';
+        let leagueData = null;
+
+        if (!leagueId) {
+            document.getElementById('leagueHeader').innerHTML = '';
+            document.getElementById('leagueHeader').appendChild(createErrorState('Neplatné ID ligy'));
+        }
+
+        // Inicializace taby
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(`tab${btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)}`).classList.add('active');
+            });
+        });
+
+        // Načtení informací o lize
+        async function loadLeagueInfo() {
+            const header = document.getElementById('leagueHeader');
+            const breadcrumb = document.getElementById('leagueBreadcrumb');
+
+            try {
+                const data = await getLeagueDetails(leagueId);
+                leagueData = data.leagues?.[0];
+
+                if (!leagueData) {
+                    header.innerHTML = '';
+                    header.appendChild(createEmptyState('Liga nenalezena'));
+                    return;
+                }
+
+                breadcrumb.textContent = leagueData.strLeague;
+
+                header.innerHTML = `
+                    <div class="league-header">
+                        <img src="${leagueData.strBadge || 'https://via.placeholder.com/80'}" alt="" class="league-header-logo" loading="lazy">
+                        <div class="league-header-info">
+                            <h1>${escapeHtml(leagueData.strLeague)}</h1>
+                            <p>${escapeHtml(leagueData.strCountry || '')} • ${escapeHtml(leagueData.strSport || '')}</p>
+                            <div class="season-selector">
+                                <select id="seasonSelect">
+                                    <option value="">Načítání sezón...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Načíst sezóny
+                loadSeasons();
+
+                // Načíst zápasy a týmy
+                loadLeagueMatches();
+                loadLeagueTeams();
+
+            } catch (error) {
+                console.error('Chyba při načítání ligy:', error);
+                header.innerHTML = '';
+                header.appendChild(createErrorState('Nepodařilo se načíst informace o lize'));
+            }
+        }
+
+        // Načtení sezón
+        async function loadSeasons() {
+            try {
+                const data = await getSeasons(leagueId);
+                const seasons = data.seasons || [];
+                const select = document.getElementById('seasonSelect');
+
+                if (seasons.length === 0) {
+                    select.innerHTML = '<option value="">Žádné sezóny</option>';
+                    return;
+                }
+
+                select.innerHTML = seasons.map(s =>
+                    `<option value="${escapeHtml(s.strSeason)}">${escapeHtml(s.strSeason)}</option>`
+                ).join('');
+
+                currentSeason = seasons[0].strSeason;
+                select.value = currentSeason;
+
+                // Načíst tabulku pro první sezónu
+                loadStandings();
+
+                // Při změně sezóny
+                select.addEventListener('change', (e) => {
+                    currentSeason = e.target.value;
+                    loadStandings();
+                });
+
+            } catch (error) {
+                console.error('Chyba při načítání sezón:', error);
+                const select = document.getElementById('seasonSelect');
+                if (select) select.innerHTML = '<option value="">Chyba načítání</option>';
+            }
+        }
+
+        // Načtení tabulky
+        async function loadStandings() {
+            const container = document.getElementById('tabStandings');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div> Načítání tabulky...</div>';
+
+            if (!currentSeason) {
+                container.innerHTML = '';
+                container.appendChild(createEmptyState('Vyberte sezónu'));
+                return;
+            }
+
+            try {
+                const data = await getLeagueTable(leagueId, currentSeason);
+                const table = data.table || [];
+
+                if (table.length === 0) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Tabulka není dostupná'));
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="card" style="overflow-x: auto;">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th style="text-align: left;">Tým</th>
+                                    <th>Z</th>
+                                    <th>V</th>
+                                    <th>R</th>
+                                    <th>P</th>
+                                    <th>Body</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${table.map((team, index) => `
+                                    <tr onclick="window.location.href='team.html?id=${team.idTeam}'" style="cursor: pointer;">
+                                        <td class="${index < 3 ? 'pos-top' : ''}">${team.intRank}</td>
+                                        <td>
+                                            <div class="team-cell">
+                                                <img src="${team.strTeamBadge || 'https://via.placeholder.com/28'}" alt="" class="team-logo" loading="lazy">
+                                                <span class="team-name">${escapeHtml(team.strTeam)}</span>
+                                            </div>
+                                        </td>
+                                        <td>${team.intPlayed}</td>
+                                        <td>${team.intWin}</td>
+                                        <td>${team.intDraw}</td>
+                                        <td>${team.intLoss}</td>
+                                        <td style="font-weight: 700;">${team.intPoints}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Chyba při načítání tabulky:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Nepodařilo se načíst tabulku'));
+            }
+        }
+
+        // Načtení zápasů ligy
+        async function loadLeagueMatches() {
+            const container = document.getElementById('tabMatches');
+
+            try {
+                const data = await getPastEventsByLeague(leagueId);
+                const events = data.events || [];
+
+                if (events.length === 0) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Žádné zápasy k zobrazení'));
+                    return;
+                }
+
+                container.innerHTML = `
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">Minulé zápasy</h3>
+                    <div class="matches-grid">
+                        ${events.slice(0, 12).map(renderMatchCard).join('')}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Chyba při načítání zápasů:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Nepodařilo se načíst zápasy'));
+            }
+        }
+
+        // Načtení týmů ligy
+        async function loadLeagueTeams() {
+            const container = document.getElementById('tabTeams');
+
+            try {
+                // Nejprve získáme detaily ligy pro název
+                const leagueDetail = await getLeagueDetails(leagueId);
+                const leagueName = leagueDetail.leagues?.[0]?.strLeague;
+
+                if (!leagueName) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Týmy nejsou dostupné'));
+                    return;
+                }
+
+                const data = await getTeamsByLeague(leagueName);
+                const teams = data.teams || [];
+
+                if (teams.length === 0) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Žádné týmy k zobrazení'));
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="search-results-grid">
+                        ${teams.map(renderTeamCard).join('')}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Chyba při načítání týmů:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Nepodařilo se načíst týmy'));
+            }
+        }
+
+        // Načíst data
+        loadLeagueInfo();
+    </script>
+</body>
+</html>

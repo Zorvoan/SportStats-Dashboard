@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail zápasu - SportPulse</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .match-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+        @media (max-width: 767px) {
+            .match-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .info-value {
+            font-weight: 500;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigační panel -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <i class="fas fa-bolt"></i>
+                SportPulse
+            </a>
+
+            <div class="navbar-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="navbarSearch" placeholder="Vyhledat zápas, tým nebo ligu...">
+            </div>
+
+            <div class="navbar-user">
+                <span class="navbar-user-name" id="userName">Uživatel</span>
+                <div class="navbar-user-avatar" id="userAvatar">U</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Odhlásit se
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hlavní obsah -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb" id="breadcrumb">
+                <a href="dashboard.html"><i class="fas fa-home"></i> Domů</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Načítání...</span>
+            </div>
+
+            <!-- Detail zápasu -->
+            <div id="matchDetail">
+                <div class="loading"><div class="loading-spinner"></div> Načítání detailu zápasu...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p> SportPulse. Sportovní data poskytuje <a href="https://www.thesportsdb.com" target="_blank" style="color: var(--accent);">TheSportsDB</a>.</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Kontrola přihlášení
+        if (!checkAuth()) {
+            window.location.href = 'index.html';
+        }
+
+        // Aktualizace uživatele v navbaru
+        updateNavbarUser();
+
+        // Inicializace navbar funkcí
+        initNavbarSearch();
+        initNavbarUser();
+
+        // Získání ID zápasu z URL
+        const matchId = getUrlParam('id');
+
+        if (!matchId) {
+            document.getElementById('matchDetail').innerHTML = '';
+            document.getElementById('matchDetail').appendChild(createErrorState('Neplatné ID zápasu'));
+        }
+
+        // Načtení detailu zápasu
+        async function loadMatchDetail() {
+            const container = document.getElementById('matchDetail');
+            const breadcrumb = document.getElementById('breadcrumb');
+
+            try {
+                const data = await getEventDetails(matchId);
+                const event = data.events?.[0];
+
+                if (!event) {
+                    container.innerHTML = '';
+                    container.appendChild(createEmptyState('Zápas nenalezen'));
+                    return;
+                }
+
+                // Aktualizace breadcrumb
+                breadcrumb.innerHTML = `
+                    <a href="dashboard.html"><i class="fas fa-home"></i> Domů</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <a href="league.html?id=${event.idLeague}">${escapeHtml(event.strLeague)}</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>${escapeHtml(event.strEvent)}</span>
+                `;
+
+                // Status zápasu
+                const status = event.strStatus || 'Scheduled';
+                let statusClass = 'status-badge-upcoming';
+                let statusText = 'Nadcházející';
+
+                if (status === 'Match Finished') {
+                    statusClass = 'status-badge-finished';
+                    statusText = 'Ukončeno';
+                } else if (status === 'Live' || status === 'In Progress') {
+                    statusClass = 'status-badge-live';
+                    statusText = 'Živě';
+                }
+
+                const homeScore = event.intHomeScore !== null ? event.intHomeScore : '-';
+                const awayScore = event.intAwayScore !== null ? event.intAwayScore : '-';
+
+                container.innerHTML = `
+                    <!-- Hlavička zápasu -->
+                    <div class="match-detail-header">
+                        <div class="match-detail-meta">
+                            <div class="match-detail-date">${formatDateTime(event.dateEvent + ' ' + event.strTime)}</div>
+                            <div class="match-detail-league">${escapeHtml(event.strLeague)} - ${escapeHtml(event.strSeason || '')}</div>
+                        </div>
+
+                        <div class="match-detail-teams">
+                            <div class="match-detail-team" onclick="window.location.href='team.html?id=${event.idHomeTeam}'" style="cursor: pointer;">
+                                <img src="${event.strHomeTeamBadge || 'https://via.placeholder.com/80'}" alt="" class="match-detail-team-logo" loading="lazy">
+                                <div class="match-detail-team-name">${escapeHtml(event.strHomeTeam)}</div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <div class="match-detail-score">${homeScore} : ${awayScore}</div>
+                                <div class="match-detail-status ${statusClass}">${statusText}</div>
+                            </div>
+
+                            <div class="match-detail-team" onclick="window.location.href='team.html?id=${event.idAwayTeam}'" style="cursor: pointer;">
+                                <img src="${event.strAwayTeamBadge || 'https://via.placeholder.com/80'}" alt="" class="match-detail-team-logo" loading="lazy">
+                                <div class="match-detail-team-name">${escapeHtml(event.strAwayTeam)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informace o zápase -->
+                    <div class="match-info-grid">
+                        <div class="card">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-info-circle"></i> Informace o zápase
+                            </h3>
+                            <div class="info-row">
+                                <span class="info-label">Sport</span>
+                                <span class="info-value">${escapeHtml(event.strSport || '-')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Liga</span>
+                                <span class="info-value">${escapeHtml(event.strLeague || '-')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Sezóna</span>
+                                <span class="info-value">${escapeHtml(event.strSeason || '-')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Kolo</span>
+                                <span class="info-value">${event.intRound || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Stadion</span>
+                                <span class="info-value">${escapeHtml(event.strVenue || '-')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Diváci</span>
+                                <span class="info-value">${event.intSpectators || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Rozhodčí</span>
+                                <span class="info-value">${escapeHtml(event.strReferee || '-')}</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-tv"></i> Přenos
+                            </h3>
+                            <div class="info-row">
+                                <span class="info-label">TV stanice</span>
+                                <span class="info-value">${escapeHtml(event.strTVStation || '-')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Post thumbnail</span>
+                                <span class="info-value">${event.strThumb ? '<a href="' + event.strThumb + '" target="_blank" style="color: var(--accent);">Zobrazit</a>' : '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Popis</span>
+                                <span class="info-value" style="text-align: right; max-width: 200px;">${escapeHtml(event.strDescriptionEN || '-').substring(0, 100)}${event.strDescriptionEN?.length > 100 ? '...' : ''}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Načíst statistiky zápasu
+                loadMatchStats(event);
+
+            } catch (error) {
+                console.error('Chyba při načítání zápasu:', error);
+                container.innerHTML = '';
+                container.appendChild(createErrorState('Nepodařilo se načíst detail zápasu'));
+            }
+        }
+
+        // Načtení statistik zápasu
+        async function loadMatchStats(event) {
+            // TheSportsDB free API neposkytuje detailní statistiky pro každý zápas
+            // Zobrazíme základní informace o skóre
+        }
+
+        // Načíst data
+        loadMatchDetail();
+    </script>
+</body>
+</html>
